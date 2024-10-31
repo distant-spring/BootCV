@@ -1,2 +1,4 @@
+^renv$
+^renv\.lock$
 ^BootCV\.Rproj$
 ^\.Rproj\.user$
