@@ -2,3 +2,4 @@
 ^renv\.lock$
 ^BootCV\.Rproj$
 ^\.Rproj\.user$
+^README\.Rmd$
