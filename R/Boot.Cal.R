@@ -1,10 +1,10 @@
 ## Packages
 library(lme4)
 
-#' Bootstrap Cross-Validation
+#' Bootstrap Calibration
 #'
-#' Boot.CV implements the proposed algorithm (algorithm 2 in reference paper) and returns the bootstrap standard error
-#' of cross-validation estimator and inflation factor.
+#' Boot.Cal implements the proposed algorithm (algorithm 3 in reference paper) with small B.bt and B.cv and returns the bootstrap standard error
+#' of cross-validation estimator, cutoff for confidence interval and inflation factor.
 #'
 #' @details
 #' The algorithm quickly estimates the standard error of cross-validation estimate
@@ -17,12 +17,14 @@ library(lme4)
 #' @param Loss loss function which returns the summary statistics L with two inputs, train.data and test.data,
 #' which are in the same form as data; it evaluates the performance of estimation fitted with train.data in test.data.
 #' @param m training set size.
-#' @param B.bt the number of bootstraps (default is 400).
-#' @param B.cv the number of cross-validations (default is 20).
+#' @param B.bt the number of bootstraps (default is 20).
+#' @param B.cv the number of cross-validations (default is 50).
+#' @param alpha 1-confidence level (default is 0.05).
 #' @param lambda0 tuning parameter in determining the adjusted sample size of training set (default is 0.368).
 #'
 #' @return
 #' \item{sigma}{the bootstrap standard error of cross-validation estimator.}
+#' \item{cutoff}{the quantile in computation of confidence interval.}
 #' \item{factor}{inflation factor to account for the reduced sample size in bootstrapped training set.}
 #' @export
 #'
@@ -52,16 +54,18 @@ library(lme4)
 #'   return(mean((yt-cbind(1,xt)%*%beta)^2))
 #' }
 #'
-#' boot=Boot.CV(data,Loss,m)
-#' result1=CV.confint(boot,data,Loss,m,method='Boot.CV',adj=T,print=T)
-#' result2=CV.confint(boot,data,Loss,m,method='Boot.CV',adj=F,print=T)
-Boot.CV=function(data,Loss,m,B.bt=400,B.cv=20,lambda0=0.368){
+#'boot=Boot.Cal(data,Loss,m)
+#'result1=CV.confint(boot,data,Loss,m,method='Boot.Cal',adj=T,print=T)
+#'result2=CV.confint(boot,data,Loss,m,method='Boot.Cal',adj=F,print=T)
+Boot.Cal=function(data,Loss,m,B.bt=20,B.cv=50,Brm.bt=1000,alpha=0.05,lambda0=0.368){
   # data: data points in n x p matrix
-  # Loss: loss function which returns the summary statistics L with two parameters, train.data and test.data
+  # Loss: loss function with two parameters, training set and testing set
   # m: training set size
-  # B.bt: the number of bootstraps (default 400)
-  # B.cv: the number of cross-validations (default 20)
-  # lambda0: tuning parameter in determing the adjusted sample size of training set (default 0.368)
+  # B.bt: the number of bootstraps (default is 20)
+  # B.cv: the number of cross-validations (default is 50)
+  # Brm.bt: the number of bootstraps for variance estimator (default is 1000)
+  # alpha: 1-confidence level (default is 0.05)
+  # lambda0: tuning parameter in determing the adjusted sample size of training set (default is 0.368)
   n=nrow(data)
   weight.mat=rmultinom(B.bt, size=n, prob=rep(1/n, n))   # frequencies of bootstrapped dataset
 
@@ -95,7 +99,17 @@ Boot.CV=function(data,Loss,m,B.bt=400,B.cv=20,lambda0=0.368){
   # random effects model
   id.bt=rep(1:B.bt, B.cv)
   fit.result=lmer(result.vec.btcv~(1|id.bt))
-  sigma.result.fastbt=as.data.frame(VarCorr(fit.result))[1,5]
+  sigma.bt=as.data.frame(VarCorr(fit.result))[1,5]
 
-  return(list(sigma=sigma.result.fastbt,factor=factor))
+  # bootstrap mixed effects model
+  r.bt=rep(NA, Brm.bt)
+  for(brm.bt in 1:Brm.bt){
+    result.btcv.bt=result.btcv[sample(B.bt, B.bt, T),]
+    result.vec.btcv.bt=as.vector(result.btcv.bt)
+    fit.result=lmer(result.vec.btcv.bt~(1|id.bt))
+    r.bt[brm.bt]=sigma.bt/as.data.frame(VarCorr(fit.result))[1,5]
+  }
+
+  z.bt=r.bt*rnorm(Brm.bt)
+  return(list(sigma=sigma.bt, cutoff=quantile(abs(na.omit(z.bt)), 1-alpha), factor=factor))
 }
