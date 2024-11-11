@@ -10,14 +10,14 @@ library(lme4)
 #' This function calculates (1) the cross-validation estimation
 #' \deqn{\widehat{Err}^{CV}_m=\frac{1}{B_{CV}}\sum_{b=1}^{B_{CV}} L\left\{D_{test}^b, \hat{\psi}(D_{train}^b)\right\},}{}
 #' where data \eqn{D=D_{train}^b\cup D_{test}^b} represents the b-th split in cross-validation and
-#' loss function L evaluates the performance of estimation \eqn{\hat{\psi}} fitted with training set in testing set.
+#' summary statistics L evaluates the performance of estimation \eqn{\hat{\psi}} fitted with training set in testing set.
 #' and (2) the corresponding confidence interval
 #' \deqn{\left[\widehat{Err}^{CV}_m-z_{1-\alpha/2}\times \widehat{\sigma}_m^{CV},  \widehat{Err}^{CV}_m+z_{1-\alpha/2}\times \widehat{\sigma}_m^{CV} \right] (\text{for Boot.CV})}{}
 #' \deqn{\left[\widehat{Err}^{CV}_m-c_{1-\alpha/2}\times \widehat{\sigma}_m^{CV},  \widehat{Err}^{CV}_m+c_{1-\alpha/2}\times \widehat{\sigma}_m^{CV} \right] (\text{for Boot.Cal})}{}
 #' where \eqn{\widehat{\sigma}_m^{CV}} is the bootstrap standard error from Boot.CV or Boot.Cal, \eqn{z_{1-\alpha/2}} and \eqn{c_{1-\alpha/2}} are corresponding quantiles.
 #' @param boot the return list from Boot.CV or Boot.Cal function.
 #' @param data data matrix of dimension nobs x nvars; each row is an observation vector.
-#' @param Loss loss function which returns the summary statistics L with two inputs, train.data and test.data,
+#' @param L summary statistics with two inputs, train.data and test.data,
 #' which are in the same form as data; it evaluates the performance of estimation fitted with train.data in test.data.
 #' @param m training set size.
 #' @param method 'Boot.CV' or 'Boot.Cal'; use Boot.CV or Boot.Cal algorithms.
@@ -42,8 +42,8 @@ library(lme4)
 #' data=cbind(y,x)
 #'
 #' m=50 # training set size
-#' # loss function
-#' Loss=function(train.data,test.data){
+#' # summary statistics
+#' L=function(train.data,test.data){
 #'   y=train.data[,1]
 #'   x=train.data[,-1]
 #'   yt=test.data[,1]
@@ -55,17 +55,17 @@ library(lme4)
 #'   return(mean((yt-cbind(1,xt)%*%beta)^2))
 #' }
 #'
-#' boot=Boot.CV(data,Loss,m)
-#' result1=CV.confint(boot,data,Loss,m,method='Boot.CV',adj=T,print=T)
-#' result2=CV.confint(boot,data,Loss,m,method='Boot.CV',adj=F,print=T)
+#' boot=Boot.CV(data,L,m)
+#' result1=CV.confint(boot,data,L,m,method='Boot.CV',adj=T,print=T)
+#' result2=CV.confint(boot,data,L,m,method='Boot.CV',adj=F,print=T)
 #'
-#' boot=Boot.Cal(data,Loss,m)
-#' result1=CV.confint(boot,data,Loss,m,method='Boot.Cal',adj=T,print=T)
-#' result2=CV.confint(boot,data,Loss,m,method='Boot.Cal',adj=F,print=T)
-CV.confint=function(boot,data,Loss,m,method=c('Boot.CV','Boot.Cal'),adj=TRUE,B.cv=400,alpha=0.05,print=FALSE){
+#' boot=Boot.Cal(data,L,m)
+#' result1=CV.confint(boot,data,L,m,method='Boot.Cal',adj=T,print=T)
+#' result2=CV.confint(boot,data,L,m,method='Boot.Cal',adj=F,print=T)
+CV.confint=function(boot,data,L,m,method=c('Boot.CV','Boot.Cal'),adj=TRUE,B.cv=400,alpha=0.05,print=FALSE){
   # boot: return from Boot.CV or Boot.Cal function
   # data: data points in n x p matrix
-  # Loss: loss function with two parameters, training set and testing set
+  # L: summary statistics with two parameters, training set and testing set
   # m: training set size
   # method: use Boot.CV or Boot.Cal algorithms
   # adj: whether to adjust for the reduced training sample size (default is TRUE)
@@ -81,7 +81,7 @@ CV.confint=function(boot,data,Loss,m,method=c('Boot.CV','Boot.Cal'),adj=TRUE,B.c
     train.data=data[id,]
     test.data=data[-id,]
 
-    result.cv[b]=Loss(train.data,test.data)
+    result.cv[b]=L(train.data,test.data)
   }
 
   est=mean(na.omit(result.cv))

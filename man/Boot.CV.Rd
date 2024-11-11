@@ -4,12 +4,12 @@
 \alias{Boot.CV}
 \title{Bootstrap Cross-Validation}
 \usage{
-Boot.CV(data, Loss, m, B.bt = 400, B.cv = 20, lambda0 = 0.368)
+Boot.CV(data, L, m, B.bt = 400, B.cv = 20, lambda0 = 0.368)
 }
 \arguments{
 \item{data}{data matrix of dimension nobs x nvars; each row is an observation vector.}
 
-\item{Loss}{loss function which returns the summary statistics L with two inputs, train.data and test.data,
+\item{L}{summary statistics with two inputs, train.data and test.data,
 which are in the same form as data; it evaluates the performance of estimation fitted with train.data in test.data.}
 
 \item{m}{training set size.}
@@ -32,7 +32,7 @@ of cross-validation estimator and inflation factor.
 The algorithm quickly estimates the standard error of cross-validation estimate
 \deqn{\widehat{Err}^{CV}_m=\frac{1}{B_{CV}}\sum_{b=1}^{B_{CV}} L\left\{D_{test}^b, \hat{\psi}(D_{train}^b)\right\},}{}
 where data \eqn{D=D_{train}^b\cup D_{test}^b} represents the b-th split in cross-validation and
-loss function L evaluates the performance of estimation \eqn{\hat{\psi}} fitted with training set in testing set.
+summary statistics L evaluates the performance of estimation \eqn{\hat{\psi}} fitted with training set in testing set.
 The adjusted sample size of training set \eqn{m_{adj}} is determined by minimizing
 \eqn{(\frac{m_{adj}}{m/0.632}-1)^2+\lambda_0 (\frac{n-m}{n-m_{adj}}-1)^2.}
 }
@@ -49,8 +49,8 @@ y=x\%*\%beta+rnorm(n)
 data=cbind(y,x)
 
 m=50 # training set size
-# loss function
-Loss=function(train.data,test.data){
+# summary statistics
+L=function(train.data,test.data){
   y=train.data[,1]
   x=train.data[,-1]
   yt=test.data[,1]
@@ -62,7 +62,7 @@ Loss=function(train.data,test.data){
   return(mean((yt-cbind(1,xt)\%*\%beta)^2))
 }
 
-boot=Boot.CV(data,Loss,m)
-result1=CV.confint(boot,data,Loss,m,method='Boot.CV',adj=T,print=T)
-result2=CV.confint(boot,data,Loss,m,method='Boot.CV',adj=F,print=T)
+boot=Boot.CV(data,L,m)
+result1=CV.confint(boot,data,L,m,method='Boot.CV',adj=T,print=T)
+result2=CV.confint(boot,data,L,m,method='Boot.CV',adj=F,print=T)
 }

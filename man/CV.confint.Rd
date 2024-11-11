@@ -7,7 +7,7 @@
 CV.confint(
   boot,
   data,
-  Loss,
+  L,
   m,
   method = c("Boot.CV", "Boot.Cal"),
   adj = TRUE,
@@ -21,7 +21,7 @@ CV.confint(
 
 \item{data}{data matrix of dimension nobs x nvars; each row is an observation vector.}
 
-\item{Loss}{loss function which returns the summary statistics L with two inputs, train.data and test.data,
+\item{L}{summary statistics with two inputs, train.data and test.data,
 which are in the same form as data; it evaluates the performance of estimation fitted with train.data in test.data.}
 
 \item{m}{training set size.}
@@ -48,7 +48,7 @@ the result of Boot.CV ot Boot.Cal
 This function calculates (1) the cross-validation estimation
 \deqn{\widehat{Err}^{CV}_m=\frac{1}{B_{CV}}\sum_{b=1}^{B_{CV}} L\left\{D_{test}^b, \hat{\psi}(D_{train}^b)\right\},}{}
 where data \eqn{D=D_{train}^b\cup D_{test}^b} represents the b-th split in cross-validation and
-loss function L evaluates the performance of estimation \eqn{\hat{\psi}} fitted with training set in testing set.
+summary statistics L evaluates the performance of estimation \eqn{\hat{\psi}} fitted with training set in testing set.
 and (2) the corresponding confidence interval
 \deqn{\left[\widehat{Err}^{CV}_m-z_{1-\alpha/2}\times \widehat{\sigma}_m^{CV},  \widehat{Err}^{CV}_m+z_{1-\alpha/2}\times \widehat{\sigma}_m^{CV} \right] (\text{for Boot.CV})}{}
 \deqn{\left[\widehat{Err}^{CV}_m-c_{1-\alpha/2}\times \widehat{\sigma}_m^{CV},  \widehat{Err}^{CV}_m+c_{1-\alpha/2}\times \widehat{\sigma}_m^{CV} \right] (\text{for Boot.Cal})}{}
@@ -65,8 +65,8 @@ y=x\%*\%beta+rnorm(n)
 data=cbind(y,x)
 
 m=50 # training set size
-# loss function
-Loss=function(train.data,test.data){
+# summary statistics
+L=function(train.data,test.data){
   y=train.data[,1]
   x=train.data[,-1]
   yt=test.data[,1]
@@ -78,11 +78,11 @@ Loss=function(train.data,test.data){
   return(mean((yt-cbind(1,xt)\%*\%beta)^2))
 }
 
-boot=Boot.CV(data,Loss,m)
-result1=CV.confint(boot,data,Loss,m,method='Boot.CV',adj=T,print=T)
-result2=CV.confint(boot,data,Loss,m,method='Boot.CV',adj=F,print=T)
+boot=Boot.CV(data,L,m)
+result1=CV.confint(boot,data,L,m,method='Boot.CV',adj=T,print=T)
+result2=CV.confint(boot,data,L,m,method='Boot.CV',adj=F,print=T)
 
-boot=Boot.Cal(data,Loss,m)
-result1=CV.confint(boot,data,Loss,m,method='Boot.Cal',adj=T,print=T)
-result2=CV.confint(boot,data,Loss,m,method='Boot.Cal',adj=F,print=T)
+boot=Boot.Cal(data,L,m)
+result1=CV.confint(boot,data,L,m,method='Boot.Cal',adj=T,print=T)
+result2=CV.confint(boot,data,L,m,method='Boot.Cal',adj=F,print=T)
 }

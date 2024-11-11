@@ -10,11 +10,11 @@ library(lme4)
 #' The algorithm quickly estimates the standard error of cross-validation estimate
 #' \deqn{\widehat{Err}^{CV}_m=\frac{1}{B_{CV}}\sum_{b=1}^{B_{CV}} L\left\{D_{test}^b, \hat{\psi}(D_{train}^b)\right\},}{}
 #' where data \eqn{D=D_{train}^b\cup D_{test}^b} represents the b-th split in cross-validation and
-#' loss function L evaluates the performance of estimation \eqn{\hat{\psi}} fitted with training set in testing set.
+#' summary statistics L evaluates the performance of estimation \eqn{\hat{\psi}} fitted with training set in testing set.
 #' The adjusted sample size of training set \eqn{m_{adj}} is determined by minimizing
 #' \eqn{(\frac{m_{adj}}{m/0.632}-1)^2+\lambda_0 (\frac{n-m}{n-m_{adj}}-1)^2.}
 #' @param data data matrix of dimension nobs x nvars; each row is an observation vector.
-#' @param Loss loss function which returns the summary statistics L with two inputs, train.data and test.data,
+#' @param L summary statistics with two inputs, train.data and test.data,
 #' which are in the same form as data; it evaluates the performance of estimation fitted with train.data in test.data.
 #' @param m training set size.
 #' @param B.bt the number of bootstraps (default is 20).
@@ -41,8 +41,8 @@ library(lme4)
 #' data=cbind(y,x)
 #'
 #' m=50 # training set size
-#' # loss function
-#' Loss=function(train.data,test.data){
+#' # summary statistics
+#' L=function(train.data,test.data){
 #'   y=train.data[,1]
 #'   x=train.data[,-1]
 #'   yt=test.data[,1]
@@ -54,12 +54,12 @@ library(lme4)
 #'   return(mean((yt-cbind(1,xt)%*%beta)^2))
 #' }
 #'
-#'boot=Boot.Cal(data,Loss,m)
-#'result1=CV.confint(boot,data,Loss,m,method='Boot.Cal',adj=T,print=T)
-#'result2=CV.confint(boot,data,Loss,m,method='Boot.Cal',adj=F,print=T)
-Boot.Cal=function(data,Loss,m,B.bt=20,B.cv=50,Brm.bt=1000,alpha=0.05,lambda0=0.368){
+#'boot=Boot.Cal(data,L,m)
+#'result1=CV.confint(boot,data,L,m,method='Boot.Cal',adj=T,print=T)
+#'result2=CV.confint(boot,data,L,m,method='Boot.Cal',adj=F,print=T)
+Boot.Cal=function(data,L,m,B.bt=20,B.cv=50,Brm.bt=1000,alpha=0.05,lambda0=0.368){
   # data: data points in n x p matrix
-  # Loss: loss function with two parameters, training set and testing set
+  # L: summary statistics with two parameters, training set and testing set
   # m: training set size
   # B.bt: the number of bootstraps (default is 20)
   # B.cv: the number of cross-validations (default is 50)
@@ -92,7 +92,7 @@ Boot.Cal=function(data,Loss,m,B.bt=20,B.cv=50,Brm.bt=1000,alpha=0.05,lambda0=0.3
       weighted.test.data=test.data[rep(1:nrow(test.data),test.weight),]
 
       if(sum(test.weight)>=1)
-        result.btcv[b.bt, b.cv]=Loss(weighted.train.data,weighted.test.data)
+        result.btcv[b.bt, b.cv]=L(weighted.train.data,weighted.test.data)
     }
   }
   result.vec.btcv=as.vector(result.btcv)
