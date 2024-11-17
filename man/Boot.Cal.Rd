@@ -54,28 +54,28 @@ library(BootCV)
 
 set.seed(1)
 # data generation
-n=90
-p=10
-x=matrix(rnorm(n*p), ncol=p)
-beta=rnorm(p)
-y=x\%*\%beta+rnorm(n)
-data=cbind(y,x)
+n <- 90
+p <- 10
+x <- matrix(rnorm(n * p), ncol = p)
+beta <- rnorm(p)
+y <- x \%*\% beta + rnorm(n)
+data <- cbind(y, x)
 
 # summary statistics
-L=function(train.data,test.data){
-  y=train.data[,1]
-  x=train.data[,-1]
-  yt=test.data[,1]
-  xt=test.data[,-1]
+L <- function(train.data, test.data) {
+  y <- train.data[, 1]
+  x <- train.data[, -1]
+  yt <- test.data[, 1]
+  xt <- test.data[, -1]
 
-  fit=lm(y~x)
-  beta=fit$coef
+  fit <- lm(y ~ x)
+  beta <- fit$coef
 
-  return(mean((yt-cbind(1,xt)\%*\%beta)^2))
+  return(mean((yt - cbind(1, xt) \%*\% beta)^2))
 }
 
-m=50 # training set size
-boot=Boot.Cal(data,L,m)
-result1=CV.confint(boot,data,L,m,method='Boot.Cal',adj=T,print=T)
-result2=CV.confint(boot,data,L,m,method='Boot.Cal',adj=F,print=T)
+m <- 50 # training set size
+boot <- Boot.Cal(data, L, m)
+result1 <- CV.confint(boot, data, L, m, method = "Boot.Cal", adj = T, print = T)
+result2 <- CV.confint(boot, data, L, m, method = "Boot.Cal", adj = F, print = T)
 }

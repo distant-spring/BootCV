@@ -1,10 +1,9 @@
 Package: BootCV
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
-Authors@R: 
-    person("Yuanhui", "Luo", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+Title: Bootstrapping the Cross-Validation Estimate
+Version: 0.1.0
+Authors@R: c(person("Yuanhui", "Luo", role = c("aut", "cre"), email="yluocl@connect.ust.hk"), 
+	     person("Bryan", "Cai", role = c("aut")))
+Description: Provide fast bootstrap methods to quantify the uncertainty of cross-validation estimate, which quickly estimates the standard error of the cross-validation estimate and produces valid confidence intervals for a population parameter measuring average model performance.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

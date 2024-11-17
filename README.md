@@ -46,7 +46,8 @@ steps, basic operations, inputs and outputs.
 First we load `BootCV` (and required package `lme4`)：
 
 ``` r
-# library(lme4) # load required package
+# load required package
+# library(lme4)
 # library(BootCV)
 ```
 
