@@ -37,7 +37,8 @@ The adjusted sample size of training set \eqn{m_{adj}} is determined by minimizi
 \eqn{(\frac{m_{adj}}{m/0.632}-1)^2+\lambda_0 (\frac{n-m}{n-m_{adj}}-1)^2.}
 }
 \examples{
-library(lme4)
+# library(lme4) # load required package
+library(BootCV)
 
 set.seed(1)
 # data generation
@@ -48,7 +49,6 @@ beta=rnorm(p)
 y=x\%*\%beta+rnorm(n)
 data=cbind(y,x)
 
-m=50 # training set size
 # summary statistics
 L=function(train.data,test.data){
   y=train.data[,1]
@@ -62,6 +62,7 @@ L=function(train.data,test.data){
   return(mean((yt-cbind(1,xt)\%*\%beta)^2))
 }
 
+m=50 # training set size
 boot=Boot.CV(data,L,m)
 result1=CV.confint(boot,data,L,m,method='Boot.CV',adj=T,print=T)
 result2=CV.confint(boot,data,L,m,method='Boot.CV',adj=F,print=T)

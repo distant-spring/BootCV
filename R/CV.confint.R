@@ -32,6 +32,9 @@ library(lme4)
 #' @export
 #'
 #' @examples
+#' # library(lme4) # load required package
+#' library(BootCV)
+#'
 #' set.seed(1)
 #' # data generation
 #' n=90
@@ -41,7 +44,6 @@ library(lme4)
 #' y=x%*%beta+rnorm(n)
 #' data=cbind(y,x)
 #'
-#' m=50 # training set size
 #' # summary statistics
 #' L=function(train.data,test.data){
 #'   y=train.data[,1]
@@ -55,6 +57,7 @@ library(lme4)
 #'   return(mean((yt-cbind(1,xt)%*%beta)^2))
 #' }
 #'
+#' m=50 # training set size
 #' boot=Boot.CV(data,L,m)
 #' result1=CV.confint(boot,data,L,m,method='Boot.CV',adj=T,print=T)
 #' result2=CV.confint(boot,data,L,m,method='Boot.CV',adj=F,print=T)

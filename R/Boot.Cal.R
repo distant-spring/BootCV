@@ -29,7 +29,8 @@ library(lme4)
 #' @export
 #'
 #' @examples
-#' library(lme4)
+#' # library(lme4) # load required package
+#' library(BootCV)
 #'
 #' set.seed(1)
 #' # data generation
@@ -40,7 +41,6 @@ library(lme4)
 #' y=x%*%beta+rnorm(n)
 #' data=cbind(y,x)
 #'
-#' m=50 # training set size
 #' # summary statistics
 #' L=function(train.data,test.data){
 #'   y=train.data[,1]
@@ -54,9 +54,10 @@ library(lme4)
 #'   return(mean((yt-cbind(1,xt)%*%beta)^2))
 #' }
 #'
-#'boot=Boot.Cal(data,L,m)
-#'result1=CV.confint(boot,data,L,m,method='Boot.Cal',adj=T,print=T)
-#'result2=CV.confint(boot,data,L,m,method='Boot.Cal',adj=F,print=T)
+#' m=50 # training set size
+#' boot=Boot.Cal(data,L,m)
+#' result1=CV.confint(boot,data,L,m,method='Boot.Cal',adj=T,print=T)
+#' result2=CV.confint(boot,data,L,m,method='Boot.Cal',adj=F,print=T)
 Boot.Cal=function(data,L,m,B.bt=20,B.cv=50,Brm.bt=1000,alpha=0.05,lambda0=0.368){
   # data: data points in n x p matrix
   # L: summary statistics with two parameters, training set and testing set

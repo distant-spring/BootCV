@@ -55,6 +55,9 @@ and (2) the corresponding confidence interval
 where \eqn{\widehat{\sigma}_m^{CV}} is the bootstrap standard error from Boot.CV or Boot.Cal, \eqn{z_{1-\alpha/2}} and \eqn{c_{1-\alpha/2}} are corresponding quantiles.
 }
 \examples{
+# library(lme4) # load required package
+library(BootCV)
+
 set.seed(1)
 # data generation
 n=90
@@ -64,7 +67,6 @@ beta=rnorm(p)
 y=x\%*\%beta+rnorm(n)
 data=cbind(y,x)
 
-m=50 # training set size
 # summary statistics
 L=function(train.data,test.data){
   y=train.data[,1]
@@ -78,6 +80,7 @@ L=function(train.data,test.data){
   return(mean((yt-cbind(1,xt)\%*\%beta)^2))
 }
 
+m=50 # training set size
 boot=Boot.CV(data,L,m)
 result1=CV.confint(boot,data,L,m,method='Boot.CV',adj=T,print=T)
 result2=CV.confint(boot,data,L,m,method='Boot.CV',adj=F,print=T)
