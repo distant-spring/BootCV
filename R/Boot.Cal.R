@@ -34,31 +34,31 @@ library(lme4)
 #'
 #' set.seed(1)
 #' # data generation
-#' n=90
-#' p=10
-#' x=matrix(rnorm(n*p), ncol=p)
-#' beta=rnorm(p)
-#' y=x%*%beta+rnorm(n)
-#' data=cbind(y,x)
+#' n <- 90
+#' p <- 10
+#' x <- matrix(rnorm(n * p), ncol = p)
+#' beta <- rnorm(p)
+#' y <- x %*% beta + rnorm(n)
+#' data <- cbind(y, x)
 #'
 #' # summary statistics
-#' L=function(train.data,test.data){
-#'   y=train.data[,1]
-#'   x=train.data[,-1]
-#'   yt=test.data[,1]
-#'   xt=test.data[,-1]
+#' L <- function(train.data, test.data) {
+#'   y <- train.data[, 1]
+#'   x <- train.data[, -1]
+#'   yt <- test.data[, 1]
+#'   xt <- test.data[, -1]
 #'
-#'   fit=lm(y~x)
-#'   beta=fit$coef
+#'   fit <- lm(y ~ x)
+#'   beta <- fit$coef
 #'
-#'   return(mean((yt-cbind(1,xt)%*%beta)^2))
+#'   return(mean((yt - cbind(1, xt) %*% beta)^2))
 #' }
 #'
-#' m=50 # training set size
-#' boot=Boot.Cal(data,L,m)
-#' result1=CV.confint(boot,data,L,m,method='Boot.Cal',adj=T,print=T)
-#' result2=CV.confint(boot,data,L,m,method='Boot.Cal',adj=F,print=T)
-Boot.Cal=function(data,L,m,B.bt=20,B.cv=50,Brm.bt=1000,alpha=0.05,lambda0=0.368){
+#' m <- 50 # training set size
+#' boot <- Boot.Cal(data, L, m)
+#' result1 <- CV.confint(boot, data, L, m, method = "Boot.Cal", adj = T, print = T)
+#' result2 <- CV.confint(boot, data, L, m, method = "Boot.Cal", adj = F, print = T)
+Boot.Cal <- function(data, L, m, B.bt = 20, B.cv = 50, Brm.bt = 1000, alpha = 0.05, lambda0 = 0.368) {
   # data: data points in n x p matrix
   # L: summary statistics with two parameters, training set and testing set
   # m: training set size
@@ -67,50 +67,52 @@ Boot.Cal=function(data,L,m,B.bt=20,B.cv=50,Brm.bt=1000,alpha=0.05,lambda0=0.368)
   # Brm.bt: the number of bootstraps for variance estimator (default is 1000)
   # alpha: 1-confidence level (default is 0.05)
   # lambda0: tuning parameter in determing the adjusted sample size of training set (default is 0.368)
-  n=nrow(data)
-  weight.mat=rmultinom(B.bt, size=n, prob=rep(1/n, n))   # frequencies of bootstrapped dataset
+  n <- nrow(data)
+  weight.mat <- rmultinom(B.bt, size = n, prob = rep(1 / n, n)) # frequencies of bootstrapped dataset
 
-  if(n-m<100)
-    m.test=m:(n-round(0.05*n))
-  else
-    m.test=round(seq(m,n-round(0.05*n),length.out=100))
-  m.adj=m.test[which.min((m/(m.test*0.632)-1)^2+lambda0*((n-m)/(n-m.test)-1)^2)]   # adjusted sample size of training set
-  factor=sqrt(n-m.adj+m.adj*0.632)/sqrt(n)
+  if (n - m < 100) {
+    m.test <- m:(n - round(0.05 * n))
+  } else {
+    m.test <- round(seq(m, n - round(0.05 * n), length.out = 100))
+  }
+  m.adj <- m.test[which.min((m / (m.test * 0.632) - 1)^2 + lambda0 * ((n - m) / (n - m.test) - 1)^2)] # adjusted sample size of training set
+  factor <- sqrt(n - m.adj + m.adj * 0.632) / sqrt(n)
 
-  result.btcv=matrix(NA, B.bt, B.cv)
-  for(b.bt in 1:B.bt){
-    weightt=weight.mat[,b.bt]
-    for(b.cv in 1:B.cv){
-      set.seed(10^6*b.bt+10^3*b.cv)
-      id=sample(n, m.adj, F)
+  result.btcv <- matrix(NA, B.bt, B.cv)
+  for (b.bt in 1:B.bt) {
+    weightt <- weight.mat[, b.bt]
+    for (b.cv in 1:B.cv) {
+      set.seed(10^6 * b.bt + 10^3 * b.cv)
+      id <- sample(n, m.adj, F)
       # split the data
-      train.data=data[id,]
-      test.data=data[-id,]
-      train.weight=weightt[id]
-      test.weight=weightt[-id]
+      train.data <- data[id, ]
+      test.data <- data[-id, ]
+      train.weight <- weightt[id]
+      test.weight <- weightt[-id]
       # construct the weighted dataset
-      weighted.train.data=train.data[rep(1:nrow(train.data),train.weight),]
-      weighted.test.data=test.data[rep(1:nrow(test.data),test.weight),]
+      weighted.train.data <- train.data[rep(1:nrow(train.data), train.weight), ]
+      weighted.test.data <- test.data[rep(1:nrow(test.data), test.weight), ]
 
-      if(sum(test.weight)>=1)
-        result.btcv[b.bt, b.cv]=L(weighted.train.data,weighted.test.data)
+      if (sum(test.weight) >= 1) {
+        result.btcv[b.bt, b.cv] <- L(weighted.train.data, weighted.test.data)
+      }
     }
   }
-  result.vec.btcv=as.vector(result.btcv)
+  result.vec.btcv <- as.vector(result.btcv)
   # random effects model
-  id.bt=rep(1:B.bt, B.cv)
-  fit.result=lmer(result.vec.btcv~(1|id.bt))
-  sigma.bt=as.data.frame(VarCorr(fit.result))[1,5]
+  id.bt <- rep(1:B.bt, B.cv)
+  fit.result <- lmer(result.vec.btcv ~ (1 | id.bt))
+  sigma.bt <- as.data.frame(VarCorr(fit.result))[1, 5]
 
   # bootstrap mixed effects model
-  r.bt=rep(NA, Brm.bt)
-  for(brm.bt in 1:Brm.bt){
-    result.btcv.bt=result.btcv[sample(B.bt, B.bt, T),]
-    result.vec.btcv.bt=as.vector(result.btcv.bt)
-    fit.result=lmer(result.vec.btcv.bt~(1|id.bt))
-    r.bt[brm.bt]=sigma.bt/as.data.frame(VarCorr(fit.result))[1,5]
+  r.bt <- rep(NA, Brm.bt)
+  for (brm.bt in 1:Brm.bt) {
+    result.btcv.bt <- result.btcv[sample(B.bt, B.bt, T), ]
+    result.vec.btcv.bt <- as.vector(result.btcv.bt)
+    fit.result <- lmer(result.vec.btcv.bt ~ (1 | id.bt))
+    r.bt[brm.bt] <- sigma.bt / as.data.frame(VarCorr(fit.result))[1, 5]
   }
 
-  z.bt=r.bt*rnorm(Brm.bt)
-  return(list(sigma=sigma.bt, cutoff=quantile(abs(na.omit(z.bt)), 1-alpha), factor=factor))
+  z.bt <- r.bt * rnorm(Brm.bt)
+  return(list(sigma = sigma.bt, cutoff = quantile(abs(na.omit(z.bt)), 1 - alpha), factor = factor))
 }

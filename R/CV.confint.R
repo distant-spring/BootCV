@@ -37,35 +37,35 @@ library(lme4)
 #'
 #' set.seed(1)
 #' # data generation
-#' n=90
-#' p=10
-#' x=matrix(rnorm(n*p), ncol=p)
-#' beta=rnorm(p)
-#' y=x%*%beta+rnorm(n)
-#' data=cbind(y,x)
+#' n <- 90
+#' p <- 10
+#' x <- matrix(rnorm(n * p), ncol = p)
+#' beta <- rnorm(p)
+#' y <- x %*% beta + rnorm(n)
+#' data <- cbind(y, x)
 #'
 #' # summary statistics
-#' L=function(train.data,test.data){
-#'   y=train.data[,1]
-#'   x=train.data[,-1]
-#'   yt=test.data[,1]
-#'   xt=test.data[,-1]
+#' L <- function(train.data, test.data) {
+#'   y <- train.data[, 1]
+#'   x <- train.data[, -1]
+#'   yt <- test.data[, 1]
+#'   xt <- test.data[, -1]
 #'
-#'   fit=lm(y~x)
-#'   beta=fit$coef
+#'   fit <- lm(y ~ x)
+#'   beta <- fit$coef
 #'
-#'   return(mean((yt-cbind(1,xt)%*%beta)^2))
+#'   return(mean((yt - cbind(1, xt) %*% beta)^2))
 #' }
 #'
-#' m=50 # training set size
-#' boot=Boot.CV(data,L,m)
-#' result1=CV.confint(boot,data,L,m,method='Boot.CV',adj=T,print=T)
-#' result2=CV.confint(boot,data,L,m,method='Boot.CV',adj=F,print=T)
+#' m <- 50 # training set size
+#' boot <- Boot.CV(data, L, m)
+#' result1 <- CV.confint(boot, data, L, m, method = "Boot.CV", adj = T, print = T)
+#' result2 <- CV.confint(boot, data, L, m, method = "Boot.CV", adj = F, print = T)
 #'
-#' boot=Boot.Cal(data,L,m)
-#' result1=CV.confint(boot,data,L,m,method='Boot.Cal',adj=T,print=T)
-#' result2=CV.confint(boot,data,L,m,method='Boot.Cal',adj=F,print=T)
-CV.confint=function(boot,data,L,m,method=c('Boot.CV','Boot.Cal'),adj=TRUE,B.cv=400,alpha=0.05,print=FALSE){
+#' boot <- Boot.Cal(data, L, m)
+#' result1 <- CV.confint(boot, data, L, m, method = "Boot.Cal", adj = T, print = T)
+#' result2 <- CV.confint(boot, data, L, m, method = "Boot.Cal", adj = F, print = T)
+CV.confint <- function(boot, data, L, m, method = c("Boot.CV", "Boot.Cal"), adj = TRUE, B.cv = 400, alpha = 0.05, print = FALSE) {
   # boot: return from Boot.CV or Boot.Cal function
   # data: data points in n x p matrix
   # L: summary statistics with two parameters, training set and testing set
@@ -75,27 +75,27 @@ CV.confint=function(boot,data,L,m,method=c('Boot.CV','Boot.Cal'),adj=TRUE,B.cv=4
   # B.cv: the number of cross-validations (default is 400)
   # alpha: 1-confidence level (default is 0.05)
   # print: whether to print the result (default is FALSE)
-  n=nrow(data)
-  result.cv=rep(NA, B.cv)
+  n <- nrow(data)
+  result.cv <- rep(NA, B.cv)
 
-  for(b in 1:B.cv){
+  for (b in 1:B.cv) {
     set.seed(b)
-    id=sample(n, m, F)
-    train.data=data[id,]
-    test.data=data[-id,]
+    id <- sample(n, m, F)
+    train.data <- data[id, ]
+    test.data <- data[-id, ]
 
-    result.cv[b]=L(train.data,test.data)
+    result.cv[b] <- L(train.data, test.data)
   }
 
-  est=mean(na.omit(result.cv))
-  sigma=ifelse(adj,boot$sigma*boot$factor,boot$sigma)
-  cutoff=ifelse(method=='Boot.Cal',boot$cutoff,qnorm(1-alpha/2))
-  CI=c(est-cutoff*sigma,est+cutoff*sigma)
+  est <- mean(na.omit(result.cv))
+  sigma <- ifelse(adj, boot$sigma * boot$factor, boot$sigma)
+  cutoff <- ifelse(method == "Boot.Cal", boot$cutoff, qnorm(1 - alpha / 2))
+  CI <- c(est - cutoff * sigma, est + cutoff * sigma)
 
-  if(print==TRUE){
-    cat('The Cross-Validation estimation is ',est,'.\n',sep='')
-    cat('The confidence interval of Bootstrap Cross-Validation is [',CI[1],',',CI[2],'].\n',sep='')
+  if (print == TRUE) {
+    cat("The Cross-Validation estimation is ", est, ".\n", sep = "")
+    cat("The confidence interval of Bootstrap Cross-Validation is [", CI[1], ",", CI[2], "].\n", sep = "")
   }
 
-  return(list(est=est,CI=CI))
+  return(list(est = est, CI = CI))
 }

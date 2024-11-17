@@ -23,14 +23,14 @@ You can install the released version of `BootCV` from
 with:
 
 ``` r
-#install.packages("BootCV")
+# install.packages("BootCV")
 ```
 
 And the development version from [GitHub](https://github.com) with:
 
 ``` r
 # install.packages("devtools")
-#devtools::install_github("distant-spring/BootCV")
+# devtools::install_github("distant-spring/BootCV")
 ```
 
 To use `BootCV`, we also need to install the required package `lme4`
@@ -47,7 +47,7 @@ First we load `BootCV` (and required package `lme4`)：
 
 ``` r
 # library(lme4) # load required package
-#library(BootCV)
+# library(BootCV)
 ```
 
 We generate the data for illustration, which is a data matrix of
@@ -56,12 +56,12 @@ dimension nobs x nvars:
 ``` r
 set.seed(1)
 # data generation
-n = 90
-p = 10
-x = matrix(rnorm(n*p), ncol = p)
-beta = rnorm(p)
-y = x%*%beta + rnorm(n)
-data = cbind(y, x)
+n <- 90
+p <- 10
+x <- matrix(rnorm(n * p), ncol = p)
+beta <- rnorm(p)
+y <- x %*% beta + rnorm(n)
+data <- cbind(y, x)
 ```
 
 Users need to specify the the summary statistics L for evaluation of
@@ -71,16 +71,16 @@ as an example:
 
 ``` r
 # summary statistics
-L=function(train.data, test.data){
-  y = train.data[,1]
-  x = train.data[,-1]
-  yt = test.data[,1]
-  xt = test.data[,-1]
- 
-  fit = lm(y ~ x)
-  beta = fit$coef
-  
-  return(mean((yt-cbind(1,xt)%*%beta)^2))
+L <- function(train.data, test.data) {
+  y <- train.data[, 1]
+  x <- train.data[, -1]
+  yt <- test.data[, 1]
+  xt <- test.data[, -1]
+
+  fit <- lm(y ~ x)
+  beta <- fit$coef
+
+  return(mean((yt - cbind(1, xt) %*% beta)^2))
 }
 ```
 
@@ -89,12 +89,12 @@ can use `Boot.CV` to estimate the standard error of cross-validation
 estimate of summary statistics L:
 
 ``` r
-m = 50 # training set size
-#boot = Boot.CV(data, L, m)
-# result with adjustment 
-#result1 = CV.confint(boot,data,L,m,method='Boot.CV',adj=T,print=T)
-# result without adjustment 
-#result2 = CV.confint(boot,data,L,m,method='Boot.CV',adj=F,print=T)
+m <- 50 # training set size
+# boot = Boot.CV(data, L, m)
+# result with adjustment
+# result1 = CV.confint(boot,data,L,m,method='Boot.CV',adj=T,print=T)
+# result without adjustment
+# result2 = CV.confint(boot,data,L,m,method='Boot.CV',adj=F,print=T)
 ```
 
 `boot` is a list that contains all the relevant information for
@@ -115,12 +115,12 @@ note is that we need to specify the confidence level when using
 0.95).
 
 ``` r
-m = 50 # training set size
-#boot = Boot.Cal(data, L, m)
-# result with adjustment 
-#result1 = CV.confint(boot,data,L,m,method='Boot.Cal',adj=T,print=T)
-# result without adjustment 
-#result2 = CV.confint(boot,data,L,m,method='Boot.Cal',adj=F,print=T)
+m <- 50 # training set size
+# boot = Boot.Cal(data, L, m)
+# result with adjustment
+# result1 = CV.confint(boot,data,L,m,method='Boot.Cal',adj=T,print=T)
+# result without adjustment
+# result2 = CV.confint(boot,data,L,m,method='Boot.Cal',adj=F,print=T)
 ```
 
 ## More Examples
