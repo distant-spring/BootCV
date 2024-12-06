@@ -27,6 +27,8 @@ which are in the same form as data; it evaluates the performance of estimation f
 
 \item{B.cv}{the number of cross-validations (default is 50).}
 
+\item{Brm.bt}{the number of bootstraps for variance estimator (default is 1000)}
+
 \item{alpha}{1-confidence level (default is 0.05).}
 
 \item{lambda0}{tuning parameter in determining the adjusted sample size of training set (default is 0.368).}

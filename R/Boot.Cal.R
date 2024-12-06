@@ -19,6 +19,7 @@ library(lme4)
 #' @param m training set size.
 #' @param B.bt the number of bootstraps (default is 20).
 #' @param B.cv the number of cross-validations (default is 50).
+#' @param Brm.bt the number of bootstraps for variance estimator (default is 1000)
 #' @param alpha 1-confidence level (default is 0.05).
 #' @param lambda0 tuning parameter in determining the adjusted sample size of training set (default is 0.368).
 #'
