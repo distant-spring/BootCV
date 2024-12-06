@@ -29,6 +29,13 @@ devtools::install_github("distant-spring/BootCV")
 To use `BootCV`, you also need to install the required package `lme4`
 from [CRAN](https://cran.r-project.org/web/packages/lme4/index.html).
 
+## Help Document
+
+The [help
+document](https://github.com/distant-spring/BootCV/blob/main/BootCV%20Document.pdf)
+of `BootCV` provides detailed guidance and examples on how to use this
+package.
+
 ## References
 
 Bryan Cai, Fabio Pellegrini, Menglan Pang, Carl De Moor, Changyu Shen,
